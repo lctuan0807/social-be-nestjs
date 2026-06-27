@@ -30,7 +30,7 @@ export class User {
 
   @Column({
     name: 'is_active',
-    default: true,
+    default: false,
     comment: 'Whether the user is active',
   })
   isActive: boolean

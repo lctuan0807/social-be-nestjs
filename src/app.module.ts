@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -26,7 +28,31 @@ import { APP_GUARD } from '@nestjs/core';
       migrations: []
     }),
     AuthModule,
-    UsersModule
+    UsersModule,
+    // Mailer Module
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('MAIL_HOST'),
+          port: 465,
+          secure: true,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: configService.get('MAIL_FROM'),
+        },
+        template: {
+          dir: process.cwd() + '/src/mail/templates',
+          adapter: new HandlebarsAdapter(),
+          options: { strict: true },
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService,

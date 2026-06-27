@@ -6,6 +6,7 @@ import { RegisterDto } from 'src/auth/dto/register.dto';
 import { hashPasswordHelper } from 'src/utils/helper';
 import { RegisterUserVo } from 'src/auth/vo/register-user.vo';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { EmailService } from 'src/email/email.service';
 
 const otpStorage: Record<string, { otp: string; otpExpiresAt: number }> = {};
 
@@ -13,6 +14,10 @@ const otpStorage: Record<string, { otp: string; otpExpiresAt: number }> = {};
 export class UsersService {
   @InjectRepository(User)
   private userRepository: Repository<User>;
+
+  constructor(
+    private readonly emailService: EmailService
+  ){}
   
   async findOneByUsername(username: string) {
     const user = await this.userRepository.findOne({
@@ -59,6 +64,9 @@ export class UsersService {
       console.log("🚀 ~ UsersService ~ handleRegister ~ otp:", otp)
       const otpExpiresAt =  Date.now() + 5 * 60 * 1000;
       otpStorage[email] = { otp, otpExpiresAt }; // save this to redis
+
+      // send email with OTP
+      this.emailService.sendVerificationEmail(savedUser.email, savedUser.username, otp)
 
       // response in VO
       const userVo = new RegisterUserVo();

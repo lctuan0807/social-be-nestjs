@@ -5,10 +5,13 @@ import { RegisterDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public } from 'src/decorators/custom';
+import { EmailService } from 'src/email/email.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService
+  ) {}
 
   // register user endpoint -- auth/register
   @Post('register')

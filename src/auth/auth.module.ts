@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TypeOrmModule.forFeature([User]),
     // Import UsersModule to provide UsersService
     UsersModule,
+    EmailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
