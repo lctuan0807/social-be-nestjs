@@ -10,6 +10,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
+import { Permission } from './users/entities/permissions.entity';
+import { Role } from './users/entities/role.entity';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'production', // Disable in production!
-      entities: [User],
+      entities: [User, Role, Permission],
       migrations: []
     }),
     AuthModule,

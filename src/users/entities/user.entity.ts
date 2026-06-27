@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Role } from "./role.entity";
 
 @Entity({
   name: "users"
@@ -41,9 +42,21 @@ export class User {
   })
   createdAt: Date
 
-  @CreateDateColumn({
+  @UpdateDateColumn({
     name: 'updated_at',
     comment: 'The last update time of the user',
   })
   updatedAt: Date
+
+  @ManyToMany(() => Role)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id'
+    },
+    inverseJoinColumn: {
+      name: 'role_id'
+    },
+  })
+  roles: Role[]
 }
