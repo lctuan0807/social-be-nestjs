@@ -7,3 +7,13 @@ Content-Type: application/json
     "email": "lctuan.0807@gmail.com",
     "password": "@@@Abc123"
 }
+
+### User -> Login
+POST http://localhost:3000/auth/login 
+Content-Type: application/json
+
+{
+    "username": "lctuan.0807",
+    "password": "@@@Abc123"
+}
+
