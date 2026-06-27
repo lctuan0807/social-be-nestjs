@@ -4,6 +4,7 @@ import { RegisterUserVo } from './vo/register-user.vo';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from 'src/decorators/custom';
 
 @Controller('auth')
 export class AuthController {
@@ -11,6 +12,7 @@ export class AuthController {
 
   // register user endpoint -- auth/register
   @Post('register')
+  @Public() // public endpoint - pass jwt auth guard
   async register(@Body() register: RegisterDto): Promise<{ message: string, data: RegisterUserVo }> {
     console.log("🚀 ~ AuthController ~ register ~ register:", register)
     const user = await this.authService.register(register);
@@ -19,6 +21,7 @@ export class AuthController {
 
   // login endpoint - auth/login
   @Post('login')
+  @Public() // public endpoint - pass jwt auth guard
   @UseGuards(LocalAuthGuard)
   login(@Request() req) {
     console.log("🚀 ~ AuthController ~ login ~ req.user:", req.user)
@@ -26,7 +29,7 @@ export class AuthController {
   }
 
   // auth/me
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Request() req) {
     console.log("🚀 ~ AuthController ~ getProfile ~ req:", req.user)

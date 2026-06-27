@@ -20,46 +20,7 @@ export class AuthService {
   ) {}
   
   async register(registerDto: RegisterDto): Promise<RegisterUserVo> {
-    const { username, email, password } = registerDto;
-    console.log("🚀 ~ AuthService ~ register ~ username, email:", username, email)
-
-    // check existing user
-    const existingUser = await this.userRepository.findOne({
-      where: { username, email }
-    });
-
-    if (existingUser) {
-      throw new BadRequestException('Username or email already exists');
-    }
-
-    // hash password
-    const hashedPassword = await hashPasswordHelper(password);
-
-    // create new user
-    const newUser = this.userRepository.create({
-      username,
-      email,
-      password: hashedPassword,
-    });
-
-    try {
-      // save new user
-      const savedUser = await this.userRepository.save(newUser);
-      console.log("🚀 ~ AuthService ~ register ~ savedUser:", savedUser)
-
-      // response in VO
-      const userVo = new RegisterUserVo();
-      userVo.id = savedUser.id;
-      userVo.username = savedUser.username;
-      userVo.email = savedUser.email;
-      userVo.createdAt = savedUser.createdAt;
-
-      console.log("🚀 ~ AuthService ~ register ~ userVo:", userVo)
-      return userVo;
-    } catch (error) {
-      console.error("Error saving user", error);
-      throw new InternalServerErrorException("An error occured while creating new user");
-    }
+    return this.usersService.handleRegister(registerDto);
   }
 
   async login(user: any) {

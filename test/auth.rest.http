@@ -3,8 +3,8 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-    "username": "lctuan.0807",
-    "email": "lctuan.0807@gmail.com",
+    "username": "lctuan.0807-4",
+    "email": "lctuan.0807-4@gmail.com",
     "password": "@@@Abc123"
 }
 
@@ -20,4 +20,4 @@ Content-Type: application/json
 
 ### Auth -> Me
 GET http://localhost:3000/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxjdHVhbi4wODA3Iiwic3ViIjoxLCJpYXQiOjE3ODI1NDg1MDMsImV4cCI6MTc4MjYzNDkwM30.Sq8ZOePGHslEnX1LK72vDnEmKN7McnjUjp_RNXkUjq8
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxjdHVhbi4wODA3Iiwic3ViIjoxLCJpYXQiOjE3ODI1NDg1MDMsImV4cCI6MTc4MjYzNDkwM30.Sq8ZOePGHslEnX1LK72vDnEmKN7McnjUjp_RNXkUjq8
