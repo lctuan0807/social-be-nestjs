@@ -5,6 +5,15 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // enable cors
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false,
+  });
+
   // set global prefix - versioning api
   // app.setGlobalPrefix('api/v1', {
   //   exclude: [''],

@@ -10,10 +10,8 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { EmailService } from 'src/email/email.service';
-import { RedisModule } from 'src/redis/redis.module';
 import { RedisService } from 'src/redis/redis.service';
-
-const otpStorage: Record<string, { otp: string; otpExpiresAt: number }> = {};
+import { OtpDto } from 'src/auth/dto/otp.dto';
 
 @Injectable()
 export class UsersService {
@@ -73,9 +71,7 @@ export class UsersService {
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       console.log('🚀 ~ UsersService ~ handleRegister ~ otp:', otp);
-      // const otpExpiresAt = Date.now() + 5 * 60 * 1000;
-      // otpStorage[username] = { otp, otpExpiresAt }; // save this to redis
-      await this.redisService.set(`otp:${username}`, otp, 5 * 60);
+      await this.redisService.set(`otp:${newUser.id}`, otp, 5 * 60);
 
       // send email with OTP
       this.emailService.sendVerificationEmail(
@@ -99,5 +95,26 @@ export class UsersService {
         'An error occured while creating new user',
       );
     }
+  }
+
+  async handleActive(otpDto: OtpDto) {
+    const otp = await this.redisService.get(`otp:${otpDto.id}`);
+    const user = await this.userRepository.findOneBy({ id: otpDto.id });
+    if (!user || !otp) {
+      throw new BadRequestException('OTP is invalid or expired');
+    }
+
+    if (otp !== otpDto.otp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.isActive) {
+      throw new BadRequestException('User is already active');
+    }
+
+    await this.userRepository.update(user.id, { isActive: true });
+
+    console.log('🚀 ~ UsersService ~ handleActive ~ otp:', otpDto.otp);
+    return otpDto;
   }
 }

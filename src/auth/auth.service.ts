@@ -1,19 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterUserVo } from './vo/register-user.vo';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import { Repository } from 'typeorm';
-import { comparePasswordHelper, hashPasswordHelper } from 'src/utils/helper';
-import { LoginDto } from './dto/login.dto';
+import { comparePasswordHelper } from 'src/utils/helper';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserVo } from './vo/user.vo';
+import { OtpDto } from './dto/otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +20,6 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { username: user.username, sub: user.id };
-    const userVo = new UserVo();
-    userVo.id = user.id;
-    userVo.username = user.username;
-    userVo.email = user.email;
-
     const userVo = new UserVo();
     userVo.id = user.id;
     userVo.username = user.username;
@@ -57,5 +44,9 @@ export class AuthService {
     if (!isValidPassword) return null;
 
     return user;
+  }
+
+  async verifyOtp(otpDto: OtpDto) {
+    return this.usersService.handleActive(otpDto);
   }
 }
