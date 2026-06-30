@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -10,13 +10,15 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { EmailService } from 'src/email/email.service';
-
-const otpStorage: Record<string, { otp: string; otpExpiresAt: number }> = {};
+import { RedisService } from 'src/redis/redis.service';
+import { OtpDto } from 'src/auth/dto/otp.dto';
 
 @Injectable()
 export class UsersService {
   @InjectRepository(User)
   private userRepository: Repository<User>;
+  @Inject(RedisService)
+  private readonly redisService: RedisService;
 
   constructor(private readonly emailService: EmailService) {}
 
@@ -69,8 +71,7 @@ export class UsersService {
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       console.log('🚀 ~ UsersService ~ handleRegister ~ otp:', otp);
-      const otpExpiresAt = Date.now() + 5 * 60 * 1000;
-      otpStorage[email] = { otp, otpExpiresAt }; // save this to redis
+      await this.redisService.set(`otp:${newUser.id}`, otp, 5 * 60);
 
       // send email with OTP
       this.emailService.sendVerificationEmail(
@@ -94,5 +95,26 @@ export class UsersService {
         'An error occured while creating new user',
       );
     }
+  }
+
+  async handleActive(otpDto: OtpDto) {
+    const otp = await this.redisService.get(`otp:${otpDto.id}`);
+    const user = await this.userRepository.findOneBy({ id: otpDto.id });
+    if (!user || !otp) {
+      throw new BadRequestException('OTP is invalid or expired');
+    }
+
+    if (otp !== otpDto.otp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (user.isActive) {
+      throw new BadRequestException('User is already active');
+    }
+
+    await this.userRepository.update(user.id, { isActive: true });
+
+    console.log('🚀 ~ UsersService ~ handleActive ~ otp:', otpDto.otp);
+    return otpDto;
   }
 }

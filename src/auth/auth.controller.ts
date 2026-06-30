@@ -13,6 +13,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Public, ResponseMessage } from 'src/decorators/custom';
 import { EmailService } from 'src/email/email.service';
+import { OtpDto } from './dto/otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,12 +22,13 @@ export class AuthController {
   // register user endpoint -- auth/register
   @Post('register')
   @Public() // public endpoint - pass jwt auth guard
+  @ResponseMessage('User registered successfully')
   async register(
     @Body() register: RegisterDto,
-  ): Promise<{ message: string; data: RegisterUserVo }> {
+  ): Promise<{ user: RegisterUserVo }> {
     console.log('🚀 ~ AuthController ~ register ~ register:', register);
     const user = await this.authService.register(register);
-    return { message: 'User registered successfully', data: user };
+    return { user };
   }
 
   // login endpoint - auth/login
@@ -37,6 +39,14 @@ export class AuthController {
   login(@Request() req) {
     console.log('🚀 ~ AuthController ~ login ~ req.user:', req.user);
     return this.authService.login(req.user);
+  }
+
+  @Post('verify')
+  @Public()
+  @ResponseMessage('Verify OTP')
+  verifyOtp(@Body() otpDto: OtpDto) {
+    console.log('🚀 ~ AuthController ~ verifyOtp ~ otpDto:', otpDto);
+    return this.authService.verifyOtp(otpDto);
   }
 
   // auth/me

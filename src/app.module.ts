@@ -13,6 +13,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.ad
 import { Permission } from './users/entities/permissions.entity';
 import { Role } from './users/entities/role.entity';
 import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ResponseInterceptor } from './interceptor/response.interceptor';
     }),
     AuthModule,
     UsersModule,
+    RedisModule,
     // Mailer Module
     MailerModule.forRootAsync({
       imports: [ConfigModule],
