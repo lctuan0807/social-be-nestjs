@@ -7,11 +7,12 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { Permission } from './users/entities/permissions.entity';
 import { Role } from './users/entities/role.entity';
+import { ResponseInterceptor } from './interceptor/response.interceptor';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { Role } from './users/entities/role.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'production', // Disable in production!
       entities: [User, Role, Permission],
-      migrations: []
+      migrations: [],
     }),
     AuthModule,
     UsersModule,
@@ -57,11 +58,16 @@ import { Role } from './users/entities/role.entity';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
-    }
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
   ],
 })
 export class AppModule {}

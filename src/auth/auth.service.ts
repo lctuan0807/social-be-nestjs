@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterUserVo } from './vo/register-user.vo';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +13,7 @@ import { comparePasswordHelper, hashPasswordHelper } from 'src/utils/helper';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { UserVo } from './vo/user.vo';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +24,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
-  
+
   async register(registerDto: RegisterDto): Promise<RegisterUserVo> {
     return this.usersService.handleRegister(registerDto);
   }
@@ -26,7 +32,13 @@ export class AuthService {
   async login(user: any) {
     const payload = { username: user.username, sub: user.id };
 
+    const userVo = new UserVo();
+    userVo.id = user.id;
+    userVo.username = user.username;
+    userVo.email = user.email;
+
     return {
+      user: userVo,
       access_token: this.jwtService.sign(payload),
     };
   }
@@ -36,10 +48,13 @@ export class AuthService {
 
     if (!user) return null;
 
-    const isValidPassword = await comparePasswordHelper(password, user.password);
+    const isValidPassword = await comparePasswordHelper(
+      password,
+      user.password,
+    );
 
     if (!isValidPassword) return null;
-    
+
     return user;
   }
 }
