@@ -22,9 +22,9 @@ export class UsersService {
 
   constructor(private readonly emailService: EmailService) {}
 
-  async findOneByUsername(username: string) {
+  async findOneByEmail(email: string) {
     const user = await this.userRepository.findOne({
-      where: { username },
+      where: { email },
       select: {
         id: true,
         username: true,
